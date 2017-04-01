@@ -225,11 +225,11 @@ func (c *Chip8Engine) runCycle() {
 		x1 := c.register[register1]
 		y1 := c.register[register2]
 		fmt.Printf("draw(%x,%x,%x)\n", x1, y1, constant)
-		for y := y1; y < y1+constant; y++ {
-			for x := x1; x < x1+8; x++ {
-				current := c.screen[x][y]
-				c.screen[x][y] = (c.memory[c.iRegister+uint16(y-y1)] >> (x - x1) & 0x1) == 1
-				if current != c.screen[x][y] {
+		for y := y1; y < y1+constant && y < 32; y++ {
+			for x := byte(0); x < 8 && (x+x1) < 64; x++ {
+				current := c.screen[x+x1][y]
+				c.screen[x+x1][y] = c.screen[x+x1][y] != ((c.memory[c.iRegister+uint16(y-y1)] >> (7 - x) & 0x1) == 1)
+				if current != c.screen[x+x1][y] {
 					c.register[0xF] = 0x1
 				}
 			}
