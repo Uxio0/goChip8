@@ -8,6 +8,28 @@ import (
 	"os"
 )
 
+var screen SDLWindow
+
+var fontset = []byte{
+	// Standard sprites for showing (some) text.
+	0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
+	0x20, 0x60, 0x20, 0x20, 0x70, // 1
+	0xf0, 0x10, 0xf0, 0x80, 0xf0, // 2
+	0xf0, 0x10, 0xf0, 0x10, 0xf0, // 3
+	0x90, 0x90, 0xf0, 0x10, 0x10, // 4
+	0xf0, 0x80, 0xf0, 0x10, 0xf0, // 5
+	0xf0, 0x80, 0xf0, 0x90, 0xf0, // 6
+	0xf0, 0x10, 0x20, 0x40, 0x40, // 7
+	0xf0, 0x90, 0xf0, 0x90, 0xf0, // 8
+	0xf0, 0x90, 0xf0, 0x10, 0xf0, // 9
+	0xf0, 0x90, 0xf0, 0x90, 0x90, // A
+	0xe0, 0x90, 0xe0, 0x90, 0xe0, // B
+	0xf0, 0x80, 0x80, 0x80, 0xf0, // C
+	0xe0, 0x90, 0x90, 0x90, 0xe0, // D
+	0xf0, 0x80, 0xf0, 0x80, 0xf0, // E
+	0xf0, 0x80, 0xf0, 0x80, 0x80, // F
+}
+
 type Chip8Engine struct {
 	memory       [0xFFF]byte
 	register     [16]byte
@@ -21,12 +43,30 @@ type Chip8Engine struct {
 }
 
 func (c *Chip8Engine) storeRom(rom []byte) int {
+	for i, fontByte := range fontset {
+		c.memory[i] = fontByte
+	}
 	for i := 0; i < len(rom); i++ {
 		c.memory[i+512] = rom[i]
 	}
 	c.pc = 512
 	c.stackPointer = 0
 	return len(rom)
+}
+
+func (c *Chip8Engine) printScreen() {
+	fmt.Println("")
+	for y := 0; y < 32; y++ {
+		fmt.Printf("%02x ", y)
+		for x := 0; x < 64; x++ {
+			if c.screen[x][y] {
+				fmt.Printf("-")
+			} else {
+				fmt.Printf("*")
+			}
+		}
+		fmt.Println("")
+	}
 }
 
 func (c *Chip8Engine) getOpCode(i uint16) uint16 {
@@ -49,8 +89,12 @@ func (c *Chip8Engine) runCycle() {
 	var opcode uint16 = c.currentInstruction()
 	fmt.Printf("%03x\tOpcode\t%04x\t", c.pc, opcode)
 	c.pc += 2
-	c.delayTimer--
-	c.soundTimer--
+	if c.delayTimer > 0 {
+		c.delayTimer--
+	}
+	if c.soundTimer > 0 {
+		c.soundTimer--
+	}
 	switch {
 	case opcode == 0x00E0:
 		fmt.Println("disp_clear()")
@@ -176,8 +220,21 @@ func (c *Chip8Engine) runCycle() {
 	case opcode>>12 == 0xD:
 		register1 := 0x0F00 & opcode >> 8
 		register2 := 0x00F0 & opcode >> 4
-		constant := 0x000F & opcode
+		constant := byte(0x000F & opcode)
 		fmt.Printf("draw(V%x,V%x,%x)\n", register1, register2, constant)
+		x1 := c.register[register1]
+		y1 := c.register[register2]
+		fmt.Printf("draw(%x,%x,%x)\n", x1, y1, constant)
+		for y := y1; y < y1+constant; y++ {
+			for x := x1; x < x1+8; x++ {
+				current := c.screen[x][y]
+				c.screen[x][y] = (c.memory[c.iRegister+uint16(y-y1)] >> (x - x1) & 0x1) == 1
+				if current != c.screen[x][y] {
+					c.register[0xF] = 0x1
+				}
+			}
+		}
+		c.printScreen()
 	case opcode&0xF0FF == 0xE09E:
 		fmt.Println("if(key()==Vx)")
 	case opcode&0xF0FF == 0xE0A1:
@@ -208,8 +265,9 @@ func (c *Chip8Engine) runCycle() {
 		}
 	case opcode&0xF0FF == 0xF029:
 		register := 0x0F00 & opcode >> 8
-		//I = font
 		fmt.Printf("I=sprite_addr[V%x]\n", register)
+		// 0 is in 0x0, 1 in 0x5, 2 in 0xA
+		c.iRegister = uint16(c.register[register]) * 5
 	case opcode&0xF0FF == 0xF033:
 		register := 0x0F00 & opcode >> 8
 		fmt.Printf("set_BCD(V%x)\n", register)
@@ -349,6 +407,8 @@ func main() {
 	engine := Chip8Engine{}
 	rom := readOpCodes()
 	engine.storeRom(rom)
+
+	//screen.Init()
 
 	//fmt.Printf("current-instruction %04x\n", engine.currentInstruction())
 	// engine.showAllOpCodes()
