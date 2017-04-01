@@ -1,23 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 )
-
-type uint4 byte
 
 type Chip8Engine struct {
 	memory       [0xFFF]byte
 	register     [16]byte
 	iRegister    uint16
 	stack        [16]uint16
-	delayTimer   uint4
-	soundTimer   uint4
+	delayTimer   byte
+	soundTimer   byte
 	pc           uint16
 	screen       [64][32]bool
-	stackPointer uint4
+	stackPointer byte
 }
 
 func (c *Chip8Engine) storeRom(rom []byte) int {
@@ -49,6 +49,8 @@ func (c *Chip8Engine) runCycle() {
 	var opcode uint16 = c.currentInstruction()
 	fmt.Printf("%03x\tOpcode\t%04x\t", c.pc, opcode)
 	c.pc += 2
+	c.delayTimer--
+	c.soundTimer--
 	switch {
 	case opcode == 0x00E0:
 		fmt.Println("disp_clear()")
@@ -62,7 +64,7 @@ func (c *Chip8Engine) runCycle() {
 		c.pc = address
 	case opcode>>12 == 2:
 		address := 0x0FFF & opcode
-		fmt.Println("Calls subroutine on %x\n", address)
+		fmt.Printf("Calls subroutine on %x\n", address)
 		c.stack[c.stackPointer] = c.pc
 		c.stackPointer++
 		c.pc = address
@@ -158,35 +160,75 @@ func (c *Chip8Engine) runCycle() {
 			c.pc += 2
 		}
 	case opcode>>12 == 0xA:
-		fmt.Println("I = NNN")
+		address := 0x0FFF & opcode
+		fmt.Printf("I = %x\n", address)
+		c.iRegister = address
 	case opcode>>12 == 0xB:
-		fmt.Println("PC=V0+NNN")
+		address := 0x0FFF & opcode
+		fmt.Printf("PC=V0+%x\n", address)
+		c.pc = uint16(c.register[0]) + address
 	case opcode>>12 == 0xC:
-		fmt.Println("Vx=rand()&NN")
+		register := 0x0F00 & opcode >> 8
+		value := byte(0x00FF & opcode)
+		// TODO Seed
+		c.register[register] = uint8(rand.Intn(0xFF)) & value
+		fmt.Printf("V%x=rand() & %x\n", register, value)
 	case opcode>>12 == 0xD:
-		fmt.Println("draw(Vx,Vy,N)")
+		register1 := 0x0F00 & opcode >> 8
+		register2 := 0x00F0 & opcode >> 4
+		constant := 0x000F & opcode
+		fmt.Printf("draw(V%x,V%x,%x)\n", register1, register2, constant)
 	case opcode&0xF0FF == 0xE09E:
 		fmt.Println("if(key()==Vx)")
 	case opcode&0xF0FF == 0xE0A1:
 		fmt.Println("if(key()!=Vx)")
 	case opcode&0xF0FF == 0xF007:
-		fmt.Println("Vx = get_delay()")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("V%x = get_delay()\n", register)
+		c.register[register] = byte(c.delayTimer)
 	case opcode&0xF0FF == 0xF00A:
 		fmt.Println("Vx = get_key()")
 	case opcode&0xF0FF == 0xF015:
-		fmt.Println("delay_timer(Vx)")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("delay_timer(V%x)\n", register)
+		c.delayTimer = c.register[register]
 	case opcode&0xF0FF == 0xF018:
-		fmt.Println("sound_timer(Vx)")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("sound_timer(V%x)\n", register)
+		c.soundTimer = c.register[register]
 	case opcode&0xF0FF == 0xF01E:
-		fmt.Println("I +=Vx")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("I +=V%x\n", register)
+		c.iRegister += uint16(c.register[register])
+		// This is an undocumented feature of the CHIP-8 and used by the "Spacefight 2091!" game.
+		if c.iRegister+uint16(c.register[register]) > 0xFFF {
+			c.register[0xF] = 1
+		} else {
+			c.register[0xF] = 0
+		}
 	case opcode&0xF0FF == 0xF029:
-		fmt.Println("I=sprite_addr[Vx]")
+		register := 0x0F00 & opcode >> 8
+		//I = font
+		fmt.Printf("I=sprite_addr[V%x]\n", register)
 	case opcode&0xF0FF == 0xF033:
-		fmt.Println("set_BCD(Vx)")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("set_BCD(V%x)\n", register)
+		bcd := c.register[register]
+		c.memory[c.iRegister] = bcd / 100 % 10
+		c.memory[c.iRegister+1] = bcd / 10 % 10
+		c.memory[c.iRegister+2] = bcd / 1 % 10
 	case opcode&0xF0FF == 0xF055:
-		fmt.Println("reg_dump(Vx,&I)")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("reg_dump(V%x,&I)\n", register)
+		for i := uint16(0); i <= register; i++ {
+			c.memory[c.iRegister+i] = c.register[i]
+		}
 	case opcode&0xF0FF == 0xF065:
-		fmt.Println("reg_load(Vx,&I)")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("reg_load(V%x,&I)\n", register)
+		for i := uint16(0); i <= register; i++ {
+			c.register[i] = c.memory[c.iRegister+i]
+		}
 	}
 }
 
@@ -309,6 +351,10 @@ func main() {
 	engine.storeRom(rom)
 
 	//fmt.Printf("current-instruction %04x\n", engine.currentInstruction())
-	//engine.showAllOpCodes()
-	engine.runCycle()
+	// engine.showAllOpCodes()
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		engine.runCycle()
+		reader.ReadString('\n')
+	}
 }
