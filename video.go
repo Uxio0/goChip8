@@ -9,6 +9,8 @@ import (
 	s.Init()
 }*/
 
+const Scale = 8
+
 type SDLWindow struct {
 	window  *sdl.Window
 	surface *sdl.Surface
@@ -60,8 +62,8 @@ func (this *SDLWindow) Draw(sprites [64][32]bool) {
 			} else {
 				color = 0
 			}
-			for i := x * 4; i < x*4+4; i++ {
-				for j := y * 4; j < y*4+4; j++ {
+			for i := x * Scale; i < x*Scale+Scale; i++ {
+				for j := y * Scale; j < y*Scale+Scale; j++ {
 					this.drawPoint(int32(i), int32(j), color)
 				}
 			}
@@ -73,8 +75,8 @@ func (this *SDLWindow) Draw(sprites [64][32]bool) {
 func (this *SDLWindow) drawPoint(x int32, y int32, value byte) {
 	pixels := this.surface.Pixels()
 	address := ((y * this.surface.W) + x) * int32(this.surface.Format.BytesPerPixel)
-	pixels[address] = value
-	pixels[address+1] = value
-	pixels[address+2] = value
-	pixels[address+3] = value
+	pixels[address] = value   //Blue
+	pixels[address+1] = value //Gren
+	pixels[address+2] = value //Red
+	//pixels[address+3] = value //Alpha?
 }

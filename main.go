@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"time"
 )
 
 var screen SDLWindow
@@ -234,7 +235,7 @@ func (c *Chip8Engine) runCycle() {
 				}
 			}
 		}
-		c.printScreen()
+		//c.printScreen()
 		screen.Draw(c.screen)
 	case opcode&0xF0FF == 0xE09E:
 		fmt.Println("if(key()==Vx)")
@@ -416,6 +417,8 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		engine.runCycle()
-		reader.ReadString('\n')
+		timer := time.NewTimer(time.Second / 120) //60Hz
+		<-timer.C
 	}
+	reader.ReadString('\n')
 }
