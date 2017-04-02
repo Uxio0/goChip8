@@ -238,15 +238,26 @@ func (c *Chip8Engine) runCycle() {
 		//c.printScreen()
 		screen.Draw(c.screen)
 	case opcode&0xF0FF == 0xE09E:
-		fmt.Println("if(key()==Vx)")
+		register := 0x0F00 & opcode >> 8
+		if screen.CheckKeyPress(c.register[register]) {
+			c.pc += 2
+		}
+		fmt.Printf("if(key()==V%x)", register)
 	case opcode&0xF0FF == 0xE0A1:
-		fmt.Println("if(key()!=Vx)")
+		register := 0x0F00 & opcode >> 8
+		if !screen.CheckKeyPress(c.register[register]) {
+			c.pc += 2
+		}
+		fmt.Printf("if(key()!=V%x)", register)
 	case opcode&0xF0FF == 0xF007:
 		register := 0x0F00 & opcode >> 8
 		fmt.Printf("V%x = get_delay()\n", register)
 		c.register[register] = byte(c.delayTimer)
 	case opcode&0xF0FF == 0xF00A:
-		fmt.Println("Vx = get_key()")
+		register := 0x0F00 & opcode >> 8
+		fmt.Printf("V%x = get_key()", register)
+		pressed := screen.WaitUntilKeyPress()
+		c.register[register] = pressed
 	case opcode&0xF0FF == 0xF015:
 		register := 0x0F00 & opcode >> 8
 		fmt.Printf("delay_timer(V%x)\n", register)
@@ -294,7 +305,7 @@ func (c *Chip8Engine) runCycle() {
 
 func readOpCodes() []byte {
 	var rom []byte
-	file, err := os.Open("PONG")
+	file, err := os.Open("PONG2")
 	if err != nil {
 		log.Fatal(err)
 	}

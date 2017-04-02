@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
+	"strconv"
 )
 
 /*func main() {
@@ -14,6 +16,44 @@ const Scale = 8
 type SDLWindow struct {
 	window  *sdl.Window
 	surface *sdl.Surface
+}
+
+func (this *SDLWindow) ManageEvents() {
+	for event := sdl.PollEvent(); ; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.KeyUpEvent:
+			fmt.Printf("[%d ms] Keyboard\ttype:%d\tsym:%c\tmodifiers:%d\tstate:%d\trepeat:%d\n",
+				t.Timestamp, t.Type, t.Keysym.Sym, t.Keysym.Mod, t.State, t.Repeat)
+		case *sdl.KeyDownEvent:
+			fmt.Printf("[%d ms] Keyboard\ttype:%d\tsym:%c\tmodifiers:%d\tstate:%d\trepeat:%d\n",
+				t.Timestamp, t.Type, t.Keysym.Sym, t.Keysym.Mod, t.State, t.Repeat)
+		}
+	}
+}
+
+func (this *SDLWindow) CheckKeyPress(key byte) bool {
+	for i := 0; i < 15; i++ {
+		event := sdl.PollEvent()
+		switch t := event.(type) {
+		case *sdl.KeyDownEvent:
+			if string(t.Keysym.Sym) == fmt.Sprintf("%x", key) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (this *SDLWindow) WaitUntilKeyPress() byte {
+	for event := sdl.PollEvent(); ; event = sdl.PollEvent() {
+		switch t := event.(type) {
+		case *sdl.KeyDownEvent:
+			pressed, err := strconv.ParseInt(string(t.Keysym.Sym), 16, 8)
+			if err == nil && pressed >= 0 && pressed < 16 {
+				return byte(pressed)
+			}
+		}
+	}
 }
 
 func (this *SDLWindow) Init() {
