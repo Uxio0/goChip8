@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -32,6 +31,7 @@ var fontset = []byte{
 	0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 }
 
+//Chip8Engine manages Chip8 CPU
 type Chip8Engine struct {
 	memory       [0xFFF]byte
 	register     [16]byte
@@ -62,9 +62,9 @@ func (c *Chip8Engine) printScreen() {
 		fmt.Printf("%02x ", y)
 		for x := 0; x < 64; x++ {
 			if c.screen[x][y] {
-				fmt.Printf("-")
+				fmt.Print("-")
 			} else {
-				fmt.Printf("*")
+				fmt.Print("*")
 			}
 		}
 		fmt.Println("")
@@ -88,7 +88,7 @@ func (c *Chip8Engine) showAllOpCodes() uint16 {
 }
 
 func (c *Chip8Engine) runCycle() {
-	var opcode uint16 = c.currentInstruction()
+	opcode := c.currentInstruction()
 	fmt.Printf("%03x\tOpcode\t%04x\t", c.pc, opcode)
 	c.pc += 2
 	if c.delayTimer > 0 {
@@ -108,7 +108,7 @@ func (c *Chip8Engine) runCycle() {
 		}
 	case opcode == 0x00EE:
 		fmt.Println("Return")
-		c.stackPointer -= 1
+		c.stackPointer--
 		c.pc = c.stack[c.stackPointer]
 	case opcode>>12 == 1:
 		address := 0x0FFF & opcode
@@ -223,8 +223,8 @@ func (c *Chip8Engine) runCycle() {
 		register := 0x0F00 & opcode >> 8
 		value := byte(0x00FF & opcode)
 		// TODO Seed
-		c.register[register] = uint8(rand.Intn(0xFF)) & value
 		fmt.Printf("V%x=rand() & %x\n", register, value)
+		c.register[register] = uint8(rand.Intn(0xFF)) & value
 	case opcode>>12 == 0xD:
 		register1 := 0x0F00 & opcode >> 8
 		register2 := 0x00F0 & opcode >> 4
@@ -434,12 +434,10 @@ func main() {
 	screen.Init()
 
 	//fmt.Printf("current-instruction %04x\n", engine.currentInstruction())
-	// engine.showAllOpCodes()
-	reader := bufio.NewReader(os.Stdin)
+	//engine.showAllOpCodes()
 	for {
 		engine.runCycle()
 		timer := time.NewTimer(time.Second / 120) //60Hz
 		<-timer.C
 	}
-	reader.ReadString('\n')
 }
