@@ -11,7 +11,11 @@ import (
 	s.Init()
 }*/
 
-const Scale = 8
+const (
+	Scale  = 8
+	Width  = 64
+	Height = 32
+)
 
 type SDLWindow struct {
 	window  *sdl.Window
@@ -56,11 +60,17 @@ func (this *SDLWindow) WaitUntilKeyPress() byte {
 	}
 }
 
+func (this *SDLWindow) Clear() {
+	rect := sdl.Rect{0, 0, Scale * Width, Scale * Height}
+	this.surface.FillRect(&rect, 0)
+	this.window.UpdateSurface()
+}
+
 func (this *SDLWindow) Init() {
 	sdl.Init(sdl.INIT_EVERYTHING)
 
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		800, 600, sdl.WINDOW_SHOWN)
+		Scale*Width, Scale*Height, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +101,7 @@ func (this *SDLWindow) Close() {
 	this.window.Destroy()
 }
 
-func (this *SDLWindow) Draw(sprites [64][32]bool) {
+func (this *SDLWindow) Draw(sprites [Width][Height]bool) {
 	for x, column := range sprites {
 		for y, element := range column {
 			//rect := sdl.Rect{int32(x), int32(y), int32(x), int32(y)}

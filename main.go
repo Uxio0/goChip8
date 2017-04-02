@@ -99,6 +99,12 @@ func (c *Chip8Engine) runCycle() {
 	switch {
 	case opcode == 0x00E0:
 		fmt.Println("disp_clear()")
+		screen.Clear()
+		for i := 0; i < len(c.screen); i++ {
+			for j := 0; j < len(c.screen[i]); j++ {
+				c.screen[i][j] = false
+			}
+		}
 	case opcode == 0x00EE:
 		fmt.Println("Return")
 		c.stackPointer -= 1
@@ -242,20 +248,20 @@ func (c *Chip8Engine) runCycle() {
 		if screen.CheckKeyPress(c.register[register]) {
 			c.pc += 2
 		}
-		fmt.Printf("if(key()==V%x)", register)
+		fmt.Printf("if(key()==V%x\n)", register)
 	case opcode&0xF0FF == 0xE0A1:
 		register := 0x0F00 & opcode >> 8
 		if !screen.CheckKeyPress(c.register[register]) {
 			c.pc += 2
 		}
-		fmt.Printf("if(key()!=V%x)", register)
+		fmt.Printf("if(key()!=V%x\n)", register)
 	case opcode&0xF0FF == 0xF007:
 		register := 0x0F00 & opcode >> 8
 		fmt.Printf("V%x = get_delay()\n", register)
 		c.register[register] = byte(c.delayTimer)
 	case opcode&0xF0FF == 0xF00A:
 		register := 0x0F00 & opcode >> 8
-		fmt.Printf("V%x = get_key()", register)
+		fmt.Printf("V%x = get_key()\n", register)
 		pressed := screen.WaitUntilKeyPress()
 		c.register[register] = pressed
 	case opcode&0xF0FF == 0xF015:
