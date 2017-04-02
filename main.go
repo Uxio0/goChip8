@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -309,9 +310,9 @@ func (c *Chip8Engine) runCycle() {
 	}
 }
 
-func readOpCodes() []byte {
+func readOpCodes(romFileName string) []byte {
 	var rom []byte
-	file, err := os.Open("PONG2")
+	file, err := os.Open(romFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -403,6 +404,9 @@ func selectOpCode(index int, opcode uint16) {
 }
 
 func main() {
+	var romFileName string
+	flag.StringVar(&romFileName, "rom", "games/PONG2", "ROM path")
+	flag.Parse()
 	// Memory begins at 0x200
 	// 0xEA0 - 0xEFF Call stack, internal use and other variables
 	// 0xF00 - 0xFFF to display refresh
@@ -424,7 +428,7 @@ func main() {
 	// Resolution -> 64x32 pixels monochrome. Sprites are 8 pixels wide and 1-15 pixels in height
 	// Sound -> Beeping sound when sound timer is not zero
 	engine := Chip8Engine{}
-	rom := readOpCodes()
+	rom := readOpCodes(romFileName)
 	engine.storeRom(rom)
 
 	screen.Init()

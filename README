@@ -1,0 +1,10 @@
+GoChip8
+=======
+
+Chip8 emulator using GoLang, just for learning purposes.
+Video/Keyboard is achieved using SDL and Go bindings for SDL.
+
+To run it
+`go get -u`
+`go build`
+`./goChip8 --rom=games\PONG2`

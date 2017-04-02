@@ -1,0 +1,117 @@
+200	Opcode	6a02	Set VX to NN
+202	Opcode	6b0c	Set VX to NN
+204	Opcode	6c3f	Set VX to NN
+206	Opcode	6d0c	Set VX to NN
+208	Opcode	a2ea	I = NNN
+20a	Opcode	dab6	draw(Vx,Vy,N)
+20c	Opcode	dcd6	draw(Vx,Vy,N)
+20e	Opcode	6e00	Set VX to NN
+210	Opcode	22d4	Calls subroutine
+212	Opcode	6603	Set VX to NN
+214	Opcode	6802	Set VX to NN
+216	Opcode	6060	Set VX to NN
+218	Opcode	f015	delay_timer(Vx)
+21a	Opcode	f007	Vx = get_delay()
+21c	Opcode	3000	if(Vx==NN)
+21e	Opcode	121a	Goto 21a
+220	Opcode	c717	Vx=rand()&NN
+222	Opcode	7708	Adds NN to VX
+224	Opcode	69ff	Set VX to NN
+226	Opcode	a2f0	I = NNN
+228	Opcode	d671	draw(Vx,Vy,N)
+22a	Opcode	a2ea	I = NNN
+22c	Opcode	dab6	draw(Vx,Vy,N)
+22e	Opcode	dcd6	draw(Vx,Vy,N)
+230	Opcode	6001	Set VX to NN
+232	Opcode	e0a1	if(key()!=Vx)
+234	Opcode	7bfe	Adds NN to VX
+236	Opcode	6004	Set VX to NN
+238	Opcode	e0a1	if(key()!=Vx)
+23a	Opcode	7b02	Adds NN to VX
+23c	Opcode	601f	Set VX to NN
+23e	Opcode	8b02	Vx=Vx&Vy
+240	Opcode	dab6	draw(Vx,Vy,N)
+242	Opcode	600c	Set VX to NN
+244	Opcode	e0a1	if(key()!=Vx)
+246	Opcode	7dfe	Adds NN to VX
+248	Opcode	600d	Set VX to NN
+24a	Opcode	e0a1	if(key()!=Vx)
+24c	Opcode	7d02	Adds NN to VX
+24e	Opcode	601f	Set VX to NN
+250	Opcode	8d02	Vx=Vx&Vy
+252	Opcode	dcd6	draw(Vx,Vy,N)
+254	Opcode	a2f0	I = NNN
+256	Opcode	d671	draw(Vx,Vy,N)
+258	Opcode	8684	Vx += Vy
+25a	Opcode	8794	Vx += Vy
+25c	Opcode	603f	Set VX to NN
+25e	Opcode	8602	Vx=Vx&Vy
+260	Opcode	611f	Set VX to NN
+262	Opcode	8712	Vx=Vx&Vy
+264	Opcode	4602	if(Vx!=NN)
+266	Opcode	1278	Goto 278
+268	Opcode	463f	if(Vx!=NN)
+26a	Opcode	1282	Goto 282
+26c	Opcode	471f	if(Vx!=NN)
+26e	Opcode	69ff	Set VX to NN
+270	Opcode	4700	if(Vx!=NN)
+272	Opcode	6901	Set VX to NN
+274	Opcode	d671	draw(Vx,Vy,N)
+276	Opcode	122a	Goto 22a
+278	Opcode	6802	Set VX to NN
+27a	Opcode	6301	Set VX to NN
+27c	Opcode	8070	Vx=Vy
+27e	Opcode	80b5	Vx -= Vy
+280	Opcode	128a	Goto 28a
+282	Opcode	68fe	Set VX to NN
+284	Opcode	630a	Set VX to NN
+286	Opcode	8070	Vx=Vy
+288	Opcode	80d5	Vx -= Vy
+28a	Opcode	3f01	if(Vx==NN)
+28c	Opcode	12a2	Goto 2a2
+28e	Opcode	6102	Set VX to NN
+290	Opcode	8015	Vx -= Vy
+292	Opcode	3f01	if(Vx==NN)
+294	Opcode	12ba	Goto 2ba
+296	Opcode	8015	Vx -= Vy
+298	Opcode	3f01	if(Vx==NN)
+29a	Opcode	12c8	Goto 2c8
+29c	Opcode	8015	Vx -= Vy
+29e	Opcode	3f01	if(Vx==NN)
+2a0	Opcode	12c2	Goto 2c2
+2a2	Opcode	6020	Set VX to NN
+2a4	Opcode	f018	sound_timer(Vx)
+2a6	Opcode	22d4	Calls subroutine
+2a8	Opcode	8e34	Vx += Vy
+2aa	Opcode	22d4	Calls subroutine
+2ac	Opcode	663e	Set VX to NN
+2ae	Opcode	3301	if(Vx==NN)
+2b0	Opcode	6603	Set VX to NN
+2b2	Opcode	68fe	Set VX to NN
+2b4	Opcode	3301	if(Vx==NN)
+2b6	Opcode	6802	Set VX to NN
+2b8	Opcode	1216	Goto 216
+2ba	Opcode	79ff	Adds NN to VX
+2bc	Opcode	49fe	if(Vx!=NN)
+2be	Opcode	69ff	Set VX to NN
+2c0	Opcode	12c8	Goto 2c8
+2c2	Opcode	7901	Adds NN to VX
+2c4	Opcode	4902	if(Vx!=NN)
+2c6	Opcode	6901	Set VX to NN
+2c8	Opcode	6004	Set VX to NN
+2ca	Opcode	f018	sound_timer(Vx)
+2cc	Opcode	7601	Adds NN to VX
+2ce	Opcode	4640	if(Vx!=NN)
+2d0	Opcode	76fe	Adds NN to VX
+2d2	Opcode	126c	Goto 26c
+2d4	Opcode	a2f2	I = NNN
+2d6	Opcode	fe33	set_BCD(Vx)
+2d8	Opcode	f265	reg_load(Vx,&I)
+2da	Opcode	f129	I=sprite_addr[Vx]
+2dc	Opcode	6414	Set VX to NN
+2de	Opcode	6500	Set VX to NN
+2e0	Opcode	d455	draw(Vx,Vy,N)
+2e2	Opcode	7415	Adds NN to VX
+2e4	Opcode	f229	I=sprite_addr[Vx]
+2e6	Opcode	d455	draw(Vx,Vy,N)
+2e8	Opcode	00ee	Return
