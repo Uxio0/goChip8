@@ -235,6 +235,7 @@ func (c *Chip8Engine) runCycle() {
 			}
 		}
 		c.printScreen()
+		screen.Draw(c.screen)
 	case opcode&0xF0FF == 0xE09E:
 		fmt.Println("if(key()==Vx)")
 	case opcode&0xF0FF == 0xE0A1:
@@ -408,7 +409,7 @@ func main() {
 	rom := readOpCodes()
 	engine.storeRom(rom)
 
-	//screen.Init()
+	screen.Init()
 
 	//fmt.Printf("current-instruction %04x\n", engine.currentInstruction())
 	// engine.showAllOpCodes()
